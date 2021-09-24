@@ -6,7 +6,7 @@
 #include "Templates/UniquePtr.h"
 #include "ImportPopH264dll.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(PopH264, Log, All);
+POPH264UNREAL_API DECLARE_LOG_CATEGORY_EXTERN(PopH264, Log, All);
 
 
 class FPopH264DecoderInstance;
@@ -30,13 +30,16 @@ class PopH264FrameMeta_t
 {
 public:
 	size_t	FrameNumber = 0;
+	int32_t ImageHeight = 0;
+	int32_t ImageWidth = 0;
+	int32_t ImageRect[4] = {0,0,0,0};
 };
 
 class POPH264UNREAL_API FPopH264DecoderInstance
 {
 public:
 	//	gr: this is mostly just a helper for implementation reference
-	static TUniquePtr<FPopH264DecoderInstance>	AllocDecoder();
+	static TSharedPtr<FPopH264DecoderInstance>	AllocDecoder();
 
 public:
 	FPopH264DecoderInstance();
@@ -50,6 +53,7 @@ public:
 	//	gr: Not sure if it's wise to just pass raw UTexture2D* pointers around, apparently if they're assigned to
 	//		UPROPERTY members, they wont get garbage collected, but... when MIGHT they get garbage collected?
 	//		should this return shared_ptr's ?
+	void					PeekFrame(PopH264FrameMeta_t& Meta);
 	TArray<UTexture2D*>		PopFrame(PopH264FrameMeta_t& Meta);
 	TArray<UTexture2D*>		PopFrame(PopH264FrameMeta_t& Meta, TArray<UTexture2D*>& ExistingTextures);	
 	static void				FillTextures(TArray<UTexture2D*>& ExistingTextures, uint8_t Value = 0xff);

@@ -20,6 +20,10 @@ void FPopH264UnrealModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
+
+	FString ShaderDir = FPaths::Combine(FPaths::ProjectPluginsDir(), TEXT("PopH264_UnrealPlugin/Shaders"));
+	AddShaderSourceDirectoryMapping("/Plugin", ShaderDir);
+	
 	// Get the base directory of this plugin
 	FString BaseDir = IPluginManager::Get().FindPlugin("PopH264Unreal")->GetBaseDir();
 
@@ -89,11 +93,12 @@ namespace std
 #endif
 
 
-TUniquePtr<FPopH264DecoderInstance> FPopH264DecoderInstance::AllocDecoder()
+TSharedPtr<FPopH264DecoderInstance> FPopH264DecoderInstance::AllocDecoder()
 {
-	auto Decoder = MakeUnique<FPopH264DecoderInstance>();
+	auto Decoder = MakeShared<FPopH264DecoderInstance>();
 	return Decoder;
 }
+
 
 
 FPopH264DecoderInstance::FPopH264DecoderInstance()
@@ -219,7 +224,7 @@ public:
 	bool					mFlipped = false;
 	int32_t					mImageWidth = false;
 	int32_t					mImageHeight = false;
-	//int32_tx4					mImageRect = false;	//	[x,y,w,h]
+	int32_t					mImageRect[4] = {0,0,0,0};	//	[x,y,w,h]
 	
 	PopH264FramePlaneMeta	mPlane0;
 	PopH264FramePlaneMeta	mPlane1;
@@ -288,8 +293,16 @@ void PopH264FrameMeta::ParseJson(FJsonObject& Json)
 	ReadJsonValue( Json, mAverageBitsPerSecondRate, "AverageBitsPerSecondRate");
 	ReadJsonValue( Json, mRowStrideBytes, "RowStrideBytes");
 	ReadJsonValue( Json, mImageWidth, "ImageWidth");
-	ReadJsonValue( Json, mImageHeight, "RowStrideBytes");
-	ReadJsonValue( Json, mRowStrideBytes, "ImageHeight");
+	ReadJsonValue( Json, mImageHeight, "ImageHeight");
+	ReadJsonValue( Json, mRowStrideBytes, "RowStrideBytes");
+	auto arr = Json.GetArrayField("ImageRect");
+	if (arr.Num() == 4)
+	{
+		for (int i = 0; i < arr.Num(); i++)
+		{
+			mImageRect[i] = arr[i]->AsNumber();
+		}
+	}
 
 	auto JsonPlanes = Json.GetArrayField("Planes");
 	if ( JsonPlanes.Num() >= 1 )
@@ -307,6 +320,40 @@ void PopH264FrameMeta::ParseJson(FJsonObject& Json)
 		auto pPlaneJson = JsonPlanes[2]->AsObject();
 		mPlane2.ParseJson(*pPlaneJson);
 	}
+}
+
+void FPopH264DecoderInstance::PeekFrame(PopH264FrameMeta_t& Meta)
+{
+	
+	//	peek frame, is there a new frame?
+	TArray<char> FrameMetaString;
+	//FrameMetaString.Init( '\0', 50 * 1024 );	<-- insanely slow
+	FrameMetaString.SetNum(50*1024);
+	/*
+	FrameMetaString.Reserve(50 * 1024);
+	for ( int i=0;	i<50 * 1024;	i++ )
+	FrameMetaString.Add('\0');
+	*/
+	PopH264_PeekFrame( mInstanceHandle, FrameMetaString.GetData(), FrameMetaString.Num() );
+	
+	const char* FrameJsonReadable = FrameMetaString.GetData();
+	
+	//	parse json
+	auto FrameMetaJson = ParseJson(FrameMetaString);
+	//	error parsing
+	if ( !FrameMetaJson )
+		return;
+		
+	PopH264FrameMeta FrameMeta;
+	FrameMeta.ParseJson(*FrameMetaJson);
+
+	Meta.FrameNumber = FrameMeta.mFrameNumber;
+	Meta.ImageHeight = FrameMeta.mImageHeight;
+	Meta.ImageWidth = FrameMeta.mImageWidth;
+	Meta.ImageRect[0] = FrameMeta.mImageRect[0];
+	Meta.ImageRect[1] = FrameMeta.mImageRect[1];
+	Meta.ImageRect[2] = FrameMeta.mImageRect[2];
+	Meta.ImageRect[3] = FrameMeta.mImageRect[3];
 }
 
 TArray<UTexture2D*> FPopH264DecoderInstance::PopFrame(PopH264FrameMeta_t& OutputMeta)
@@ -344,7 +391,6 @@ TArray<UTexture2D*> FPopH264DecoderInstance::PopFrame(PopH264FrameMeta_t& Output
 	//	no new frame
 	if ( FrameMeta.mFrameNumber < 0 )
 		return NoFrame;
-	
 	//	allocate data buffer for the frame
 	//	gr: can we use BulkData, and can we use the bulk data directly from a texture...
 	TArray<uint8_t> Plane0Data;
