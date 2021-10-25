@@ -46,7 +46,8 @@ public class PopH264Unreal : ModuleRules
 			{
 				// ... add private dependencies that you statically link with here ...	
 				"CoreUObject",
-				"Engine"
+				"Engine",
+				"RenderCore"
 			}
 			);
 		

@@ -28,7 +28,7 @@ private:
 */
 	//UPROPERTY(VisibleAnywhere)
 	//PopH264::Decoder* decoderInstance = nullptr;
-	TUniquePtr<FPopH264DecoderInstance>	mDecoder;
+	TSharedPtr<FPopH264DecoderInstance>	mDecoder;
 
 public:	
 	UPopH264TestActorComponent();
@@ -43,6 +43,7 @@ public:
 */
 	//	having a UProperty means naked UObject-based pointers inside an array will get a strong pointer refernece
 	UPROPERTY()
+	TArray<uint8> rawData;
 	TArray<UTexture2D*> mLastPlanes;
 	bool	mHadFrame = false;	
 
@@ -50,7 +51,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	virtual void PostLoad() override;
-
+	
 	void		UpdateMaterial();
 
 public:	

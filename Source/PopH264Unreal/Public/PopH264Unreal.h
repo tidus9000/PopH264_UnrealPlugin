@@ -4,7 +4,9 @@
 
 #include "Modules/ModuleManager.h"
 #include "Templates/UniquePtr.h"
+#if PLATFORM_WINDOWS
 #include "ImportPopH264dll.h"
+#endif
 
 POPH264UNREAL_API DECLARE_LOG_CATEGORY_EXTERN(PopH264, Log, All);
 
@@ -18,7 +20,9 @@ public:
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+#if PLATFORM_WINDOWS
 	ImportPopH264dll instance;
+#endif
 
 private:
 	/** Handle to the test dll we will load */

@@ -1,4 +1,7 @@
 #include "PopH264TestActorComponent.h"
+
+//#include <xutility>
+
 #include "PopH264Unreal.h"
 
 
@@ -27,8 +30,14 @@ void UPopH264TestActorComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	size_t FrameNumber = 999;
 	static int x = 0;
 	const char* TestDataName = ((x++) & 1) ? "GreyscaleGradient.h264" : "RainbowGradient.h264";
-	mDecoder->PushTestData(TestDataName, FrameNumber);
-
+	UE_LOG(PopH264, Log, TEXT("%s"), TestDataName);
+	//mDecoder->PushTestData(TestDataName, FrameNumber);
+	FString path = "C:\\Users\\arthur\\Documents\\Unreal Projects\\BlankPopH264\\Plugins\\PopH264_UnrealPlugin\\Content\\cat.mov";
+	if (rawData.Num() <= 0)
+	{
+		FFileHelper::LoadFileToArray(rawData, (TEXT("%s"), *path));
+		mDecoder->PushH264Data(rawData, FrameNumber);
+	}
 	//if (!mHadFrame)
 	{
 		PopH264FrameMeta_t Meta;

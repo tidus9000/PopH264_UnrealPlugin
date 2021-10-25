@@ -2,7 +2,7 @@
 
 
 #include "ImportPopH264dll.h"
-
+#if PLATFORM_WINDOWS
 typedef int32_t(*_PopH264_GetVersion)();
 typedef void(*_PopH264_Shutdown)();
 typedef int32_t(*_PopH264_GetTestData)(const char* Name, uint8_t* Buffer, int32_t BufferSize);
@@ -805,3 +805,4 @@ void ImportPopH264dll::PopH264_EncoderAddOnNewPacketCallback(int32_t Instance, P
 		return;
 	}
 }
+#endif

@@ -11,6 +11,7 @@
 
 class ImportPopH264dll
 {
+#if PLATFORM_WINDOWS
 public:
 	ImportPopH264dll();
 	~ImportPopH264dll();
@@ -59,4 +60,5 @@ protected:
 	static bool Import_PopH264_EncoderPopData();
 	static bool Import_PopH264_EncoderPeekData();
 	static bool Import_PopH264_EncoderAddOnNewPacketCallback();
+#endif
 };
