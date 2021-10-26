@@ -46,17 +46,7 @@ public class PopH264 : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
-			//PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "PopH264.xcframework", "ios-arm64"));
-			//PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "PopH264.xcframework", "ios-arm64_x86_64-simulator"));
-			//PublicFrameworks.Add(Path.Combine(ModuleDirectory, "PopH264.xcframework", "ios-arm64", "PopH264_Ios.framework"));
-			//PublicAdditionalFrameworks.Add(new Framework("PopH264",Path.Combine(ModuleDirectory, "PopH264.xcframework", "ios-arm64", "PopH264_Ios.framework")));
-			//PublicAdditionalFrameworks.Add("$(PluginDir)/Source/ThirdParty/PopH264/PopH264.xcframework/ios-arm64/PopH264_Ios.framework");
-			//PublicFrameworks.Add(Path.Combine(ModuleDirectory, "PopH264.xcframework", "ios-arm64_x86_64-simulator", "PopH264_Ios.framework"));
-			//RuntimeDependencies.Add("$(PluginDir)/Source/ThirdParty/PopH264/PopH264.xcframework/ios-arm64/PopH264_Ios.framework/libdynamic”, UnrealBuildTool.StagedFileType.SystemNonUFS);
-			RuntimeDependencies.Add("$(PluginDir)/Source/ThirdParty/PopH264/PopH264.xcframework/ios-arm64/PopH264_Ios.framework/PopH264_Ios", UnrealBuildTool.StagedFileType.SystemNonUFS);
-			RuntimeDependencies.Add("$(PluginDir)/Source/ThirdParty/PopH264/PopH264.xcframework/ios-arm64/PopH264_Ios.framework/Info.plist", UnrealBuildTool.StagedFileType.SystemNonUFS);
-            RuntimeDependencies.Add("$(PluginDir)/Source/ThirdParty/PopH264/PopH264.xcframework/ios-arm64/PopH264_Ios.framework/_CodeSignature/CodeResources", UnrealBuildTool.StagedFileType.SystemNonUFS);
-            RuntimeDependencies.Add("$(PluginDir)/Source/ThirdParty/PopH264/PopH264.xcframework/ios-arm64/PopH264_Ios.framework/Headers/PopH264.h", UnrealBuildTool.StagedFileType.SystemNonUFS);
+			PublicAdditionalFrameworks.Add(new Framework("PopH264_Ios", Path.Combine(ModuleDirectory, "PopH264.xcframework", "ios-arm64", "PopH264_Ios.framework"), "",true));
 		}
 	}
 }
